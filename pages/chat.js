@@ -86,6 +86,10 @@ export default function ChatPage() {
       texto: novaMensagem,
     };
 
+    if (!supabaseClient) {
+      console.warn("Supabase client not available - cannot send message");
+      return;
+    }
     supabaseClient
       .from("mensagens")
       .insert([
