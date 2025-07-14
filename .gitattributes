@@ -1,7 +1,0 @@
-# Prevent GitGuardian from scanning certain file types
-*.log filter=lfs diff=lfs merge=lfs -text
-*.env* filter=lfs diff=lfs merge=lfs -text
-
-# Mark certain patterns as generated
-.next/** linguist-generated
-node_modules/** linguist-generated
