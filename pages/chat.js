@@ -6,9 +6,8 @@ import { useRouter } from "next/router";
 import { ButtonSendSticker } from "../src/components/ButtonSendStickers";
 
 // Como fazer AJAX
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzY2ODcyMiwiZXhwIjoxOTU5MjQ0NzIyfQ.COCD_WagGd1jC-0-5DQ4dwY6CDU0HlNRtB7odnrlctw";
-const SUPABASE_URL = "https://igsaczosehnulpeltves.supabase.co";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function escutaMensagemEmTempoReal(adicionaMensagem) {
