@@ -1,110 +1,52 @@
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import React from "react";
 import appConfig from "./config.json";
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
 import { ButtonSendSticker } from "../src/components/ButtonSendStickers";
 
-// Como fazer AJAX
-// Configure your Supabase credentials in .env.local file
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+// Mock local storage for demo purposes
+const STORAGE_KEY = "chat_messages";
 
-if (!SUPABASE_ANON_KEY || !SUPABASE_URL) {
-  console.warn(
-    "Supabase credentials not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.",
-  );
+function getStoredMessages() {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  }
+  return [];
 }
 
-const supabaseClient =
-  SUPABASE_URL && SUPABASE_ANON_KEY
-    ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
-
-function escutaMensagemEmTempoReal(adicionaMensagem) {
-  if (!supabaseClient) {
-    console.warn("Supabase client not available");
-    return { unsubscribe: () => {} };
+function saveMessagesToStorage(messages) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
   }
-  return supabaseClient
-    .from("mensagens")
-    .on("INSERT", (respostaLive) => {
-      adicionaMensagem(respostaLive.new);
-    })
-    .subscribe();
 }
 
 export default function ChatPage() {
-  // return (
-  //     <div>Página do Chat</div>
-  // )
   const roteamento = useRouter();
   const usuarioLogado = roteamento.query.username;
   const [mensagem, setMensagem] = React.useState("");
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-  // Sua lógica vai aqui
 
   React.useEffect(() => {
-    if (!supabaseClient) {
-      console.warn("Supabase client not available - using empty message list");
-      return;
-    }
-    supabaseClient
-      .from("mensagens")
-      .select("*")
-      .order("id", { ascending: false })
-      .then(({ data }) => {
-        console.log("Dados da consulta:", data);
-        setListaDeMensagens(data || []);
-      });
-
-    const subscription = escutaMensagemEmTempoReal((novaMensagem) => {
-      console.log("Nova Mensagem:", novaMensagem);
-      console.log("listaDeMensagem:", listaDeMensagens);
-
-      // Quero reusar um valor de referência(objeto/array)
-      // Passar uma função pro setState
-      // setListaDeMensagens([
-      //    novaMensagem,
-      //    ...listaDeMensagens,
-      // ])
-      setListaDeMensagens((valorAtualDaLista) => {
-        console.log("valorAtualDaLista:", valorAtualDaLista);
-        return [novaMensagem, ...valorAtualDaLista];
-      });
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    // Load messages from localStorage on component mount
+    const storedMessages = getStoredMessages();
+    setListaDeMensagens(storedMessages);
   }, []);
 
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-      // id: listaDeMensagens.length + 1,
+      id: Date.now(), // Simple ID generation
       de: usuarioLogado,
       texto: novaMensagem,
+      created_at: new Date().toISOString(),
     };
 
-    if (!supabaseClient) {
-      console.warn("Supabase client not available - cannot send message");
-      return;
-    }
-    supabaseClient
-      .from("mensagens")
-      .insert([
-        // Tem que ser um objeto com os mesmo campos que você escreveu no Supabase
-        mensagem,
-      ])
-
-      .then(({ data }) => {
-        console.log("Criando mensagens: ", data);
-        setListaDeMensagens([data[0], ...listaDeMensagens]);
-      });
-
+    const novaListaDeMensagens = [mensagem, ...listaDeMensagens];
+    setListaDeMensagens(novaListaDeMensagens);
+    saveMessagesToStorage(novaListaDeMensagens);
     setMensagem("");
   }
-  // ./Sua lógica vai aqui
+
   return (
     <Box
       styleSheet={{
@@ -146,15 +88,7 @@ export default function ChatPage() {
             padding: "16px",
           }}
         >
-          {/* <MessageList mensagens={[]} /> */}
           <MessageList mensagens={listaDeMensagens} />
-          {/* {listaDeMensagens.map((mensagemAtual) => {
-                        return (
-                            <li key={mensagemAtual.id}>
-                                {mensagemAtual.de}: {mensagemAtual.texto}
-                            </li>
-                        )
-                    })} */}
 
           <Box
             as="form"
@@ -188,11 +122,9 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
-            {/* CallBack */}
             <ButtonSendSticker
               onStickerClick={(sticker) => {
-                // console.log('[usando o componente] Salva esse sticker no banco', sticker);
-                console.log("Sala esse sticker no banco");
+                console.log("Sending sticker");
                 handleNovaMensagem(":sticker: " + sticker);
               }}
             />
@@ -284,18 +216,11 @@ function MessageList(props) {
                 {new Date().toLocaleDateString()}
               </Text>
             </Box>
-            {/* Declarativo
-                        Condicional: {mensagem.texto.startsWith(':sticker:').toString()} ")} 
-                        */}
             {mensagem.texto.startsWith(":sticker: ") ? (
               <Image src={mensagem.texto.replace(":sticker: ", "")} />
             ) : (
               mensagem.texto
             )}
-            {/* if mensagem de texto possui stickers:
-                                mostra imagem
-                            else
-                                mensagem.texto */}
           </Text>
         );
       })}
