@@ -4,6 +4,8 @@ import appConfig from "./config.json";
 import { useRouter } from "next/router";
 import { ButtonSendSticker } from "../src/components/ButtonSendStickers";
 
+// SECURITY: This application uses only local storage, no external APIs or secrets required
+
 // Mock local storage for demo purposes
 const STORAGE_KEY = "chat_messages";
 
