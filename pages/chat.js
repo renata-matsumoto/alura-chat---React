@@ -22,6 +22,10 @@ const supabaseClient =
     : null;
 
 function escutaMensagemEmTempoReal(adicionaMensagem) {
+  if (!supabaseClient) {
+    console.warn("Supabase client not available");
+    return { unsubscribe: () => {} };
+  }
   return supabaseClient
     .from("mensagens")
     .on("INSERT", (respostaLive) => {
