@@ -126,7 +126,6 @@ export default function ChatPage() {
             />
             <ButtonSendSticker
               onStickerClick={(sticker) => {
-                console.log("Sending sticker");
                 handleNovaMensagem(":sticker: " + sticker);
               }}
             />
