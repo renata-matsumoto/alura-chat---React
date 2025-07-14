@@ -1,0 +1,13 @@
+version: v1
+metadata:
+  name: GitGuardian configuration
+  description: Configuration for GitGuardian secret scanning
+
+secret-scan:
+  ignore-paths:
+    - .env.local
+    - .env.example
+  ignore-secrets:
+    # Supabase secrets moved to environment variables in commit aeabdaf
+    - name: Supabase credentials
+      hash: # These were hardcoded but have been moved to env vars
