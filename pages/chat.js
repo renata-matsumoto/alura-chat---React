@@ -7,9 +7,19 @@ import { ButtonSendSticker } from "../src/components/ButtonSendStickers";
 
 // Como fazer AJAX
 // Configure your Supabase credentials in .env.local file
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+
+if (!SUPABASE_ANON_KEY || !SUPABASE_URL) {
+  console.warn(
+    "Supabase credentials not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.",
+  );
+}
+
+const supabaseClient =
+  SUPABASE_URL && SUPABASE_ANON_KEY
+    ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
 
 function escutaMensagemEmTempoReal(adicionaMensagem) {
   return supabaseClient
