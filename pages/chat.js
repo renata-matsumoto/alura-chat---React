@@ -45,6 +45,10 @@ export default function ChatPage() {
   // Sua lógica vai aqui
 
   React.useEffect(() => {
+    if (!supabaseClient) {
+      console.warn("Supabase client not available - using empty message list");
+      return;
+    }
     supabaseClient
       .from("mensagens")
       .select("*")
