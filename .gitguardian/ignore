@@ -1,3 +1,0 @@
-# Ignore resolved secrets from git history
-**/pages/chat.js:*supabase*
-**/commit/*:*supabase*
